@@ -2,7 +2,7 @@
 By [Anargyros Chatzitofis](https://www.iti.gr/iti/people/Anargyros_Chatzitofis.html), [Dimitris Zarpalas](https://www.iti.gr/iti/people/Dimitrios_Zarpalas.html), [Stefanos Kollias](https://www.ece.ntua.gr/gr/staff/15), [Petros Daras](https://www.iti.gr/iti/people/Petros_Daras.html).
 
 ## Introduction
-In this paper, a low-cost, marker-based optical motion capture method is proposed, namely DeepMoCap, using multiple spatio-temporally aligned infrared-depth sensors and retro-reflective straps and patches (reflectors). 
+**DeepMoCap** constitutes a low-cost, marker-based optical motion capture method that consumes multiple spatio-temporally aligned infrared-depth sensor streams using retro-reflective straps and patches (reflectors). 
 
 DeepMoCap explores motion capture by automatically localizing and labeling reflectors on depth images and, subsequently, on 3D space. Introducing a non-parametric representation to encode the temporal correlation among pairs of colorized depth and 2.5D optical flow frames, a multi-stage fully Convolutional Neural Network (FCNN) architecture is proposed to jointly learn reflector locations and their temporal dependency among sequential frames. The extracted reflector 2D locations are spatially mapped in 3D space, resulting in robust optical data extraction. To this end, the subject's motion is efficiently captured by applying a template-based fitting technique. 
 
