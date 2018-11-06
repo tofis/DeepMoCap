@@ -27,7 +27,7 @@ This project is licensed under the terms of the [license](LICENSE).
 
 ## Testing
 
-![Teaser?](https://www.dropbox.com/s/se1y6apnxz3uynh/3D_all.png)
+![Teaser?](http://195.251.117.145/img/3D_all.png)
 
 <!-- 
 ### C++ (realtime version, for demo purpose)
