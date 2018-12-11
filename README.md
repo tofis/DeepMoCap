@@ -73,8 +73,8 @@ The DMC2.5D Dataset was captured in order to train and test the DeepMoCap FCN. I
 ## Citation
 
 The paper is currently under review.
-<!-- 
-Please cite the paper in your publications if it helps your research:    
+
+<!-- Please cite the paper in your publications if it helps your research:    
     
     @inproceedings{deepmocap2018chatzitofis,
       author = {Anargyros Chatzitofis and Dimitrios Zarpalas and Stefanos Kollias and Petros Daras},
