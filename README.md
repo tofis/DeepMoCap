@@ -1,7 +1,7 @@
 # DeepMoCap: Deep Optical Motion Capture using multiple Depth Sensors and Retro-reflectors
 By [Anargyros Chatzitofis](https://www.iti.gr/iti/people/Anargyros_Chatzitofis.html), [Dimitris Zarpalas](https://www.iti.gr/iti/people/Dimitrios_Zarpalas.html), [Stefanos Kollias](https://www.ece.ntua.gr/gr/staff/15), [Petros Daras](https://www.iti.gr/iti/people/Petros_Daras.html).
 
-![Logo](http://195.251.117.145/img/3D_all.png)
+
 
 ## Introduction
 **DeepMoCap** constitutes a low-cost, marker-based optical motion capture method that consumes multiple spatio-temporally aligned infrared-depth sensor streams using retro-reflective straps and patches (reflectors). 
@@ -26,7 +26,7 @@ This project is licensed under the terms of the [license](LICENSE).
 3. [Citation](#citation)
 
 ## Testing
-![Teaser?](http://195.251.117.145/img/3D_all.png)
+![Logo](http://195.251.117.145/img/3D_all.png)
 
 <!-- 
 ### C++ (realtime version, for demo purpose)
