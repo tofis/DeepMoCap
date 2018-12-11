@@ -1,6 +1,8 @@
 # DeepMoCap: Deep Optical Motion Capture using multiple Depth Sensors and Retro-reflectors
 By [Anargyros Chatzitofis](https://www.iti.gr/iti/people/Anargyros_Chatzitofis.html), [Dimitris Zarpalas](https://www.iti.gr/iti/people/Dimitrios_Zarpalas.html), [Stefanos Kollias](https://www.ece.ntua.gr/gr/staff/15), [Petros Daras](https://www.iti.gr/iti/people/Petros_Daras.html).
 
+![Logo](http://195.251.117.145/img/3D_all.png)
+
 ## Introduction
 **DeepMoCap** constitutes a low-cost, marker-based optical motion capture method that consumes multiple spatio-temporally aligned infrared-depth sensor streams using retro-reflective straps and patches (reflectors). 
 
@@ -24,7 +26,6 @@ This project is licensed under the terms of the [license](LICENSE).
 3. [Citation](#citation)
 
 ## Testing
-
 ![Teaser?](http://195.251.117.145/img/3D_all.png)
 
 <!-- 
@@ -67,6 +68,8 @@ The DMC2.5D Dataset was captured in order to train and test the DeepMoCap FCN. I
  - 3D optical flow data.
  
  The samples were randomly selected from 8 subjects. More specifically, 25K single-view pair samples were annotated with over 300K total keypoints (i.e., reflector 2D locations of current and previous frames on the image), trying to cover a variety of poses and movements in the scene. 20K, 3K and 2K samples were used for training, validation and testing the FCN model, respectively. The annotation was semi-automatically realized by applying image processing and 3D vision techniques, while the dataset was manually refined using the [2D-reflectorset-annotator](/tools/2D-reflector-annotator/).
+
+ ![Teaser?](http://195.251.117.145/img/DMC2.5D_github.png)
 
 ### DMC3D
 
