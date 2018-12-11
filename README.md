@@ -1,4 +1,4 @@
-# DeepMoCap: Optical Motion Capture leveraging multiple Depth Sensors, Retro-reflectors and Fully Convolutional Neural Networks
+# DeepMoCap: Deep Optical Motion Capture using multiple Depth Sensors and Retro-reflectors
 By [Anargyros Chatzitofis](https://www.iti.gr/iti/people/Anargyros_Chatzitofis.html), [Dimitris Zarpalas](https://www.iti.gr/iti/people/Dimitrios_Zarpalas.html), [Stefanos Kollias](https://www.ece.ntua.gr/gr/staff/15), [Petros Daras](https://www.iti.gr/iti/people/Petros_Daras.html).
 
 ## Introduction
