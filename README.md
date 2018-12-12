@@ -45,9 +45,9 @@ To get the DMC2.5D dataset, please contact the owner of the repository via githu
 
 ### DMC3D
 
-The DMC3D dataset consists of multi-view depth and skeleton data as well as inertial and ground truth motion capture data. Specifically, 3 Kinect for Xbox One sensors were used to capture the IR-D and Kinect skeleton data along with 9 **XSens MT inertial** measurement units (IMU) to enable the comparison between the proposed method and inertial MoCap approaches. Further, a **PhaseSpace Impulse X2** solution was used to capture ground truth MoCap data. The preparation of the DMC3D dataset required the spatio-temporal alignment of the modalities (Kinect, PhaseSpace, XSens MTs). The setup used for the Kinect recordings provides spatio-temporally aligned IR-D and skeleton frames.
-
 ![Teaser?](http://www.deepmocap.com/img/depth.png)
+
+The DMC3D dataset consists of multi-view depth and skeleton data as well as inertial and ground truth motion capture data. Specifically, 3 Kinect for Xbox One sensors were used to capture the IR-D and Kinect skeleton data along with 9 **XSens MT inertial** measurement units (IMU) to enable the comparison between the proposed method and inertial MoCap approaches. Further, a **PhaseSpace Impulse X2** solution was used to capture ground truth MoCap data. The preparation of the DMC3D dataset required the spatio-temporal alignment of the modalities (Kinect, PhaseSpace, XSens MTs). The setup used for the Kinect recordings provides spatio-temporally aligned IR-D and skeleton frames.
 
 |   Exercise    | # of repetitions  | # of frames  |  Type  |
 |  :---: |  :---: |  :---: |  :---: |
