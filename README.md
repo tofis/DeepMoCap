@@ -35,7 +35,7 @@ Two datasets have been created and made publicly available for evaluation purpos
 ### DMC2.5D
 The DMC2.5D Dataset was captured in order to train and test the DeepMoCap FCN. It comprises pairs per view of: 
  - colorized depth and 
- - 3D optical flow data.
+ - 3D optical flow data (the primal-dual algorithm used in the present work can be found @ https://github.com/MarianoJT88/PD-Flow, using IR data instead of RGB).
  
  The samples were randomly selected from 8 subjects. More specifically, 25K single-view pair samples were annotated with over 300K total keypoints (i.e., reflector 2D locations of current and previous frames on the image), trying to cover a variety of poses and movements in the scene. 20K, 3K and 2K samples were used for training, validation and testing the FCN model, respectively. The annotation was semi-automatically realized by applying image processing and 3D vision techniques, while the dataset was manually refined using the [2D-reflectorset-annotator](/tools/2D-reflector-annotator/).
 
@@ -45,7 +45,7 @@ To get the DMC2.5D dataset, please contact the owner of the repository via githu
 
 ### DMC3D
 
-The DMC3D dataset consists of multi-view IR-D and skeleton data as well as inertial and ground truth motion capture data. Specifically, 3 Kinect for Xbox One sensors were used to capture the IR-D and Kinect skeleton data along with 9 **XSens MT inertial** measurement units (IMU) to enable the comparison between the proposed method and inertial MoCap approaches. Further, a **PhaseSpace Impulse X2** solution was used to capture ground truth MoCap data. The preparation of the DMC3D dataset required the spatio-temporal alignment of the modalities (Kinect, PhaseSpace, XSens MTs). The setup used for the Kinect recordings provides spatio-temporally aligned IR-D and skeleton frames.
+The DMC3D dataset consists of multi-view depth and skeleton data as well as inertial and ground truth motion capture data. Specifically, 3 Kinect for Xbox One sensors were used to capture the IR-D and Kinect skeleton data along with 9 **XSens MT inertial** measurement units (IMU) to enable the comparison between the proposed method and inertial MoCap approaches. Further, a **PhaseSpace Impulse X2** solution was used to capture ground truth MoCap data. The preparation of the DMC3D dataset required the spatio-temporal alignment of the modalities (Kinect, PhaseSpace, XSens MTs). The setup used for the Kinect recordings provides spatio-temporally aligned IR-D and skeleton frames.
 
 ![Teaser?](http://www.deepmocap.com/img/depth.png)
 
