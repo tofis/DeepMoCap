@@ -63,6 +63,8 @@ The DMC3D dataset consists of multi-view IR-D and skeleton data as well as inert
 | Alternate side reaches | 6-12 | 300-500 | Bilateral |
 | Kick-box kicking | 2-6 | 200-300 | Free |
 
+![Teaser?](http://www.deepmocap.com/img/depth.png)
+
 The annotation tool for the spatio-temporally alignment of the 3D data will be publicly available soon.
 
 ## Citation
