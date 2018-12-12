@@ -8,6 +8,10 @@ By [Anargyros Chatzitofis](https://www.iti.gr/iti/people/Anargyros_Chatzitofis.h
 
 DeepMoCap explores motion capture by automatically localizing and labeling reflectors on depth images and, subsequently, on 3D space. Introducing a non-parametric representation to encode the temporal correlation among pairs of colorized depthmaps and 3D optical flow frames, a multi-stage Fully Convolutional Network (FCN) architecture is proposed to jointly learn reflector locations and their temporal dependency among sequential frames. The extracted reflector 2D locations are spatially mapped in 3D space, resulting in robust optical data extraction. To this end, the subject's motion is efficiently captured by applying a template-based fitting technique.
 
+ ![Teaser?](http://www.deepmocap.com/img/overview.png)
+ 
+ ![Teaser?](http://www.deepmocap.com/img/overall.png)
+
 This project is licensed under the terms of the [license](LICENSE).
 
 
