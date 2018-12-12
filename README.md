@@ -22,7 +22,7 @@ This project is licensed under the terms of the [license](LICENSE).
 3. [Citation](#citation)
 
 ## Testing
-For testing, please visit ["testing/"](/testing/) where a Python srcript will allow you to extract 3D optical data from colorized depth and 3D optical flow input. The data should be appropriately formed and the DeepMoCap FCN model should be placed to ["testing/model"](/testing/model/). To get the model, please contact the owner of the repository via github or email (tofis@iti.gr). 
+For testing, please visit ["testing/"](/testing/) enabling the 3D optical data extraction from colorized depth and 3D optical flow input. The data should be appropriately formed and the DeepMoCap FCN model should be placed to ["testing/model"](/testing/model/). To get the model, please contact the owner of the repository via github or email (tofis@iti.gr). 
 
 ![Logo](http://www.deepmocap.com/img/3D_all.png)
 
@@ -37,7 +37,7 @@ The DMC2.5D Dataset was captured in order to train and test the DeepMoCap FCN. I
  - colorized depth and 
  - 3D optical flow data (the primal-dual algorithm used in the present work can be found @ https://github.com/MarianoJT88/PD-Flow, using IR data instead of RGB).
  
- The samples were randomly selected from 8 subjects. More specifically, 25K single-view pair samples were annotated with over 300K total keypoints (i.e., reflector 2D locations of current and previous frames on the image), trying to cover a variety of poses and movements in the scene. 20K, 3K and 2K samples were used for training, validation and testing the FCN model, respectively. The annotation was semi-automatically realized by applying image processing and 3D vision techniques, while the dataset was manually refined using the [2D-reflectorset-annotator](/tools/2D-reflector-annotator/).
+The samples were randomly selected from 8 subjects. More specifically, 25K single-view pair samples were annotated with over 300K total keypoints (i.e., reflector 2D locations of current and previous frames on the image), trying to cover a variety of poses and movements in the scene. 20K, 3K and 2K samples were used for training, validation and testing the FCN model, respectively. The annotation was semi-automatically realized by applying image processing and 3D vision techniques, while the dataset was manually refined using the [2D-reflectorset-annotator](/tools/2D-reflector-annotator/).
 
  ![Teaser?](http://www.deepmocap.com/img/DMC2.5D_github.png)
 
