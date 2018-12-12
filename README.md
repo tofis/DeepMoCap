@@ -22,7 +22,7 @@ This project is licensed under the terms of the [license](LICENSE).
 3. [Citation](#citation)
 
 ## Testing
-For testing purposes, the data should be appropriately formed and the DeepMoCap FCN model should be placed to ["testing/model"](/testing/model/). To get the model, please contact the owner of the repository via github or email (tofis@iti.gr). 
+For testing, please visit ["testing/"](/testing/) where a Python srcript will allow you to extract 3D optical data from colorized depth and 3D optical flow input. The data should be appropriately formed and the DeepMoCap FCN model should be placed to ["testing/model"](/testing/model/). To get the model, please contact the owner of the repository via github or email (tofis@iti.gr). 
 
 ![Logo](http://www.deepmocap.com/img/3D_all.png)
 
