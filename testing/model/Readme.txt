@@ -1,1 +1,0 @@
-[At this folder, the .h5 file of the FCNN model should be placed for properly running the testing script]

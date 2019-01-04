@@ -53,7 +53,7 @@ limbSeq = [[1, 2], [1, 3], [2, 10], [10, 11], [11, 12], [12, 13], [3, 15], [15, 
 mapIdx = [[28,29], [29,30], [31,32], [33,34], [35,36], [37,38], [39,40], [41,42], \
           [43,44], [45,46], [47,48], [49,50], [51,52], [53,54], [55,56], \
           [57,58], [59,60], [61,62], [63,64], [65,66], [67,68], [69, 70], 
-          [71, 72], [73, 74], [75, 76], [77, 78], [79, 80]]
+          [71, 72], [73, 74], [75, 76], [77, 78]]
 
 # visualize
 colors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [85, 255, 0],
@@ -138,14 +138,11 @@ def process (input_image, params, model_params):
 
 
     num_of_heatmaps = 27
-    num_of_PAFs = 56
-    num_of_PAFs_normal = 28
+    num_of_PAFs = 52
+    num_of_PAFs_normal = 27
 
     oriImg = cv2.imread(input_image)  # B,G,R order
     rawDepth = read_pgm(input_image.replace("mc_blob.png", "depth.pgm"), byteorder='>')
-    # pyplot.imshow(rawDepth, pyplot.cm.gray)
-    # pyplot.show()
-    # multiplier = [x * model_params['boxsize'] / oriImg.shape[0] for x in params['scale_search']]
 
     heatmap_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], num_of_heatmaps))
     paf_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], num_of_PAFs))
@@ -159,7 +156,7 @@ def process (input_image, params, model_params):
 
         input_img = np.transpose(np.float32(imageToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
 
-        output_blobs = model.predict(input_img)
+        output_blobs = model.predict([input_img, input_img])
 
         # extract outputs, resize, and remove padding
         heatmap = np.squeeze(output_blobs[1])  # output 1 is heatmaps
@@ -405,9 +402,7 @@ def process (input_image, params, model_params):
                 detected_contour_coordinates.sort(key=lambda x : x[2]) # = np.sort(detected_contour_coordinates, axis=2)
                 values[::-1].sort()
                 values = [x for x in values if x > 0]
-                # zeros = np.count_nonzero(values)
-                # # values = np.nanmean(values[:])
-                # depth = values[int((len(values) - zeros)/2)]
+
                 if np.median(values) != np.nan and np.median(values) > 0:
                     detected_contour_depth_values.append(values)
                 else:
@@ -416,7 +411,6 @@ def process (input_image, params, model_params):
             else:
                 del detected_ids[-1]
                 del detected_rectangles[-1]
-                # del merged_sets[-1]
 
     # if (len(merged_sets) > 0):
     ## Clustering
@@ -599,12 +593,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--dir', type=str, default='sample_images/exp_seq00/', help='input dir')
     # parser.add_argument('--dir', type=str, default='sample_images/exp_seq_18_9_43_10317-10915/', help='input dir')    
-    parser.add_argument('--dir', type=str, default='sample_images/exp_seq_03-18-11-27-03_3V/', help='input dir')    
+    parser.add_argument('--dir', type=str, default='samples/', help='input dir')    
     
     # parser.add_argument('--dir', type=str, default='sample_images/figure/', help='input dir')    
-    parser.add_argument('--image', type=str, default='sample_images/test.png', help='input image')
+    parser.add_argument('--image', type=str, default='samples/test.png', help='input image')
     parser.add_argument('--output', type=str, default='result.png', help='output image')
-    parser.add_argument('--model', type=str, default='model/model.h5', help='path to the weights file')
+    parser.add_argument('--model', type=str, default='model/keras/deepmocap_model.h5', help='path to the weights file')
 
     args = parser.parse_args()
     input_image = args.image
@@ -614,7 +608,7 @@ if __name__ == '__main__':
 
     print('start processing...')
 
-
+    # matrices initialization
     KRT4_x = np.zeros((512, 424), dtype=float)
     KRT4_y = np.zeros((512, 424), dtype=float)
 
@@ -624,9 +618,9 @@ if __name__ == '__main__':
     KRT8_x = np.zeros((512, 424), dtype=float)
     KRT8_y = np.zeros((512, 424), dtype=float)
 
-    file4 = open(imageDir + "../D4.pmm", 'r')
-    file6 = open(imageDir + "../D6.pmm", 'r')
-    file8 = open(imageDir + "../D8.pmm", 'r')
+    file4 = open(imageDir + "D4.pmm", 'r')
+    file6 = open(imageDir + "D6.pmm", 'r')
+    file8 = open(imageDir + "D8.pmm", 'r')
 
     text4 = file4.read(-1)
     lines4 = re.split('\n|\r', text4)
@@ -634,9 +628,7 @@ if __name__ == '__main__':
     for i in range(3, len(lines4)):
         textValues = re.split(' |\r', lines4[i])
         for j in range(0, len(textValues)-1):
-            # print(textValues[j])
             xy = re.split(';| |\n|\t|\r', textValues[j])
-            # xy = textValues[j].split(";\n ")
             KRT4_x[j][i-3] = float(xy[0])
             KRT4_y[j][i-3] = float(xy[1])
 
@@ -646,9 +638,7 @@ if __name__ == '__main__':
     for i in range(3, len(lines6)):
         textValues = re.split(' |\r', lines6[i])
         for j in range(0, len(textValues)-1):
-            # print(textValues[j])
             xy = re.split(';| |\n|\t|\r', textValues[j])
-            # xy = textValues[j].split(";\n ")
             KRT6_x[j][i-3] = float(xy[0])
             KRT6_y[j][i-3] = float(xy[1])
 
@@ -658,22 +648,9 @@ if __name__ == '__main__':
     for i in range(3, len(lines8)):
         textValues = re.split(' |\r', lines8[i])
         for j in range(0, len(textValues)-1):
-            # print(textValues[j])
             xy = re.split(';| |\n|\t|\r', textValues[j])
-            # xy = textValues[j].split(";\n ")
             KRT8_x[j][i-3] = float(xy[0])
-            KRT8_y[j][i-3] = float(xy[1])
-                        # for (int j = 3; j < lines.Length; ++j)
-                        # {
-                        #     var values = lines[j].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-                        #     for (int k = 0; k < values.Length; ++k)
-                        #     {
-                        #         var xy = values[k].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                        #         // this.loader.KRT[i][k + (j - 3)*512] = new Vector2(float.Parse(xy[0].Replace(".", ",")), float.Parse(xy[1].Replace(".", ",")));
-                        #         this.loader.KRT[i][k + (j - 3)*512] = new Vector2(float.Parse(xy[0]), float.Parse(xy[1]));
-                        #     }                            
-                        # }
+            KRT8_y[j][i-3] = float(xy[1])                       
                         
     Ext4 = np.zeros((4, 4), dtype=float)
     Ext6 = np.zeros((4, 4), dtype=float)
@@ -681,9 +658,11 @@ if __name__ == '__main__':
     tempExt = np.zeros((4, 4), dtype=float)
   
 
-    file4extrinsics = open(imageDir + "../D4.extrinsics", 'r')
-    file6extrinsics = open(imageDir + "../D6.extrinsics", 'r')
-    file8extrinsics = open(imageDir + "../D8.extrinsics", 'r')
+
+
+    file4extrinsics = open(imageDir + "D4.extrinsics", 'r')
+    file6extrinsics = open(imageDir + "D6.extrinsics", 'r')
+    file8extrinsics = open(imageDir + "D8.extrinsics", 'r')
 
     ext_text4 = file4extrinsics.read(-1)
     lines_ext4 = re.split('\n|\r', ext_text4)
@@ -701,12 +680,6 @@ if __name__ == '__main__':
             # xyz = re.split(';| |\n|\t|\r', textValues[j])
             tempExt[i][j] = float(textValues[j])
 
-    # this.loader.Extrinsics[i] =
-    #             new OpenTK.Matrix4(extrinsics[0][0], extrinsics[0][1], extrinsics[0][2], extrinsics[3][0] / divider,
-    #                                extrinsics[2][0], extrinsics[2][1], extrinsics[2][2], extrinsics[3][2] / divider,
-    #                                -extrinsics[1][0], -extrinsics[1][1], -extrinsics[1][2], -extrinsics[3][1] / divider,
-    #                                0, 0, 0, 1);
-
     Ext4[:][0] = tempExt[:][0]
     Ext4[:][1] = tempExt[:][2]
     Ext4[:][2] = -tempExt[:][1]
@@ -716,14 +689,6 @@ if __name__ == '__main__':
     Ext4[2][3] = -tempExt[3][1] / 1000.0
 
     Ext4[3][3] = 1
-
-
-
-    # Ext4[3] = (Ext4[0][3] / 1000.0, Ext4[1][3], Ext4[2][3], 1)
-    
-    # Ext4[0][3] = 0
-    # Ext4[1][3] = 0
-    # Ext4[2][3] = 0
 
     tempExt = np.zeros((4, 4), dtype=float)
 
@@ -744,12 +709,6 @@ if __name__ == '__main__':
     Ext6[2][3] = -tempExt[3][1] / 1000.0
 
     Ext6[3][3] = 1
-    # Ext6[3] = (Ext6[0][3] / 1000.0, Ext6[1][3], Ext6[2][3], 1)
-    
-    # Ext6[0][3] = 0
-    # Ext6[1][3] = 0
-    # Ext6[2][3] = 0
-
     tempExt = np.zeros((4, 4), dtype=float)
     
     for i in range(0, len(lines_ext8)):
@@ -768,15 +727,10 @@ if __name__ == '__main__':
 
     Ext8[3][3] = 1
 
-    # Ext8[3] = (Ext8[0][3] / 1000.0, Ext8[1][3], Ext8[2][3], 1)
-    
-    # Ext8[0][3] = 0
-    # Ext8[1][3] = 0
-    # Ext8[2][3] = 0
 
 
-    # authors of original model don't use
-    # vgg normalization (subtracting mean) on input images
+
+    # 
     model = get_testing_model()
     model.load_weights(keras_weights_file)
 
