@@ -134,46 +134,57 @@ def cluster2(data, maxgap):
 
     return groups
 
-def process (input_image, params, model_params):   
+def process (input_CD_image, input_OF_image, params, model_params, 
+    num_of_heatmaps = 27,       # 26 + background --> 27
+    num_of_OFFs = 52,           # 26 pairs: 52 layers in total 
+    num_of_OFFs_normal = 27):   # number of pairs (26) + 1 --> 27
 
+    print(input_CD_image)
+    print(input_OF_image)
 
-    num_of_heatmaps = 27
-    num_of_PAFs = 52
-    num_of_PAFs_normal = 27
+    oriImgCD = cv2.imread(input_CD_image)     # B,G,R order
+    oriImgOF = cv2.imread(input_OF_image)   # B,G,R order
 
-    oriImg = cv2.imread(input_image)  # B,G,R order
-    rawDepth = read_pgm(input_image.replace("mc_blob.png", "depth.pgm"), byteorder='>')
+    rawDepth = read_pgm(input_CD_image.replace("mc_blob.png", "depth.pgm"), byteorder='>')
 
-    heatmap_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], num_of_heatmaps))
-    paf_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], num_of_PAFs))
+    heatmap_avg = np.zeros((oriImgCD.shape[0], oriImgCD.shape[1], num_of_heatmaps))
+    off_avg = np.zeros((oriImgOF.shape[0], oriImgOF.shape[1], num_of_OFFs))
 
     for m in range(len(multiplier)):
         scale = multiplier[m]
 
-        imageToTest = cv2.resize(oriImg, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
-        imageToTest_padded, pad = util.padRightDownCorner(imageToTest, model_params['stride'],
+        image_CD_ToTest = cv2.resize(oriImgCD, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        image_CD_ToTest_padded, pad = util.padRightDownCorner(image_CD_ToTest, model_params['stride'],
                                                           model_params['padValue'])
 
-        input_img = np.transpose(np.float32(imageToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
+        input_img_CD = np.transpose(np.float32(image_CD_ToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
 
-        output_blobs = model.predict([input_img, input_img])
+        image_OF_ToTest = cv2.resize(oriImgCD, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        image_OF_ToTest_padded, pad = util.padRightDownCorner(image_OF_ToTest, model_params['stride'],
+                                                          model_params['padValue'])
+
+        input_img_OF = np.transpose(np.float32(image_OF_ToTest_padded[:,:,:,np.newaxis]), (3,0,1,2)) # required shape (1, width, height, channels)
+
+        output_blobs = model.predict([input_img_OF, input_img_CD])
 
         # extract outputs, resize, and remove padding
+        # The CD input is used for having the required parameters since they are the same for both inputs
+
         heatmap = np.squeeze(output_blobs[1])  # output 1 is heatmaps
         heatmap = cv2.resize(heatmap, (0, 0), fx=model_params['stride'], fy=model_params['stride'],
                              interpolation=cv2.INTER_CUBIC)
-        heatmap = heatmap[:imageToTest_padded.shape[0] - pad[2], :imageToTest_padded.shape[1] - pad[3],
+        heatmap = heatmap[:image_CD_ToTest_padded.shape[0] - pad[2], :image_CD_ToTest_padded.shape[1] - pad[3],
                   :]
-        heatmap = cv2.resize(heatmap, (oriImg.shape[1], oriImg.shape[0]), interpolation=cv2.INTER_CUBIC)
+        heatmap = cv2.resize(heatmap, (oriImgCD.shape[1], oriImgCD.shape[0]), interpolation=cv2.INTER_CUBIC)
 
-        paf = np.squeeze(output_blobs[0])  # output 0 is PAFs
-        paf = cv2.resize(paf, (0, 0), fx=model_params['stride'], fy=model_params['stride'],
+        off = np.squeeze(output_blobs[0])  # output 0 is OFFs
+        off = cv2.resize(off, (0, 0), fx=model_params['stride'], fy=model_params['stride'],
                          interpolation=cv2.INTER_CUBIC)
-        paf = paf[:imageToTest_padded.shape[0] - pad[2], :imageToTest_padded.shape[1] - pad[3], :]
-        paf = cv2.resize(paf, (oriImg.shape[1], oriImg.shape[0]), interpolation=cv2.INTER_CUBIC)
+        off = off[:image_CD_ToTest_padded.shape[0] - pad[2], :image_CD_ToTest_padded.shape[1] - pad[3], :]
+        off = cv2.resize(off, (oriImgCD.shape[1], oriImgCD.shape[0]), interpolation=cv2.INTER_CUBIC)
 
         heatmap_avg = heatmap_avg + heatmap / len(multiplier)
-        paf_avg = paf_avg + paf / len(multiplier)
+        off_avg = off_avg + off / len(multiplier)
 
     all_peaks = []
     peak_counter = 0
@@ -192,7 +203,7 @@ def process (input_image, params, model_params):
         map_down[:, :-1] = map[:, 1:]
 
         peaks_binary = np.logical_and.reduce(
-            (map >= map_left, map >= map_right, map >= map_up, map >= map_down, map > 0.1)) # params['thre1']))
+            (map >= map_left, map >= map_right, map >= map_up, map >= map_down, map > params['thre1']))
         peaks = list(zip(np.nonzero(peaks_binary)[1], np.nonzero(peaks_binary)[0]))  # note reverse
         peaks_with_score = [x + (map_ori[x[1], x[0]],) for x in peaks]
         id = range(peak_counter, peak_counter + len(peaks))
@@ -206,7 +217,7 @@ def process (input_image, params, model_params):
     mid_num = 4
 
     for k in range(len(mapIdx)):
-        score_mid = paf_avg[:, :, [x - num_of_PAFs_normal for x in mapIdx[k]]]
+        score_mid = off_avg[:, :, [x - num_of_OFFs_normal for x in mapIdx[k]]]
         candA = all_peaks[limbSeq[k][0] - 1]
         candB = all_peaks[limbSeq[k][1] - 1]
         nA = len(candA)
@@ -235,7 +246,7 @@ def process (input_image, params, model_params):
 
                     score_midpts = np.multiply(vec_x, vec[0]) + np.multiply(vec_y, vec[1])
                     score_with_dist_prior = sum(score_midpts) / len(score_midpts) + min(
-                        0.5 * oriImg.shape[0] / norm - 1, 0)
+                        0.5 * oriImgCD.shape[0] / norm - 1, 0)
                     criterion1 = len(np.nonzero(score_midpts > params['thre2'])[0]) > 0.8 * len(
                         score_midpts)
                     criterion2 = score_with_dist_prior > 0
@@ -259,7 +270,7 @@ def process (input_image, params, model_params):
 
     # last number in each row is the total parts number of that person
     # the second last number in each row is the score of the overall configuration
-    subset = -1 * np.ones((0, num_of_PAFs_normal + 1))
+    subset = -1 * np.ones((0, num_of_OFFs_normal + 1))
     candidate = np.array([item for sublist in all_peaks for item in sublist])
 
     for k in range(len(mapIdx)):
@@ -297,7 +308,7 @@ def process (input_image, params, model_params):
 
                 # if find no partA in the subset, create a new subset
                 elif not found and k < num_of_heatmaps - 1:
-                    row = -1 * np.ones(num_of_PAFs_normal + 1)
+                    row = -1 * np.ones(num_of_OFFs_normal + 1)
                     row[indexA] = partAs[i]
                     row[indexB] = partBs[i]
                     row[-1] = 2
@@ -312,7 +323,7 @@ def process (input_image, params, model_params):
             deleteIdx.append(i)
     # subset = np.delete(subset, deleteIdx, axis=0)
 
-    canvas = cv2.imread(input_image)  # B,G,R order
+    canvas = oriImgCD # B,G,R order
    
     all_peaks_max_index = np.zeros(num_of_heatmaps - 1, dtype=int)
     for i in range(num_of_heatmaps - 1):
@@ -412,50 +423,21 @@ def process (input_image, params, model_params):
                 del detected_ids[-1]
                 del detected_rectangles[-1]
 
-    # if (len(merged_sets) > 0):
     ## Clustering
     temp_detected = [x for x in detected_ids]
 
     for i in range(len(merged_sets)):
         if (merged_sets[i][0] in temp_detected) and (merged_sets[i][1] in temp_detected):
-            # clusters = cluster(detected_contour_depth_values[detected_ids[i]], 65)
-            # clusters = cluster2(detected_contour_coordinates, 200)
             kmeans = KMeans(n_clusters=2, random_state=0).fit(detected_contour_coordinates)
 
             detected_contour_depth_values[detected_ids.index(merged_sets[i][0])] = [x[2] for x in detected_contour_coordinates if kmeans.labels_[detected_contour_coordinates.index(x)] == 0]
             detected_contour_depth_values[detected_ids.index(merged_sets[i][1])] = [x[2] for x in detected_contour_coordinates if kmeans.labels_[detected_contour_coordinates.index(x)] == 1]
 
-            # if (len(clusters) == 2):
-            #     all_xy = []
-            #     all_xy.append([x for x in clusters[0][:]][0])
-            #     x_mean_a = [x for x in clusters[0][:]].mean()
-            #     y_mean_a = clusters[0][:][1].mean()
-
-            #     x_mean_b = clusters[0][:][0].mean()
-            #     y_mean_b = clusters[0][:][1].mean()
-
-            #     dx_a = np.abs(all_peaks[merged_sets[i][0]][all_peaks_max_index[merged_sets[i][0]]][0] - x_mean_a)
-            #     dy_a = np.abs(all_peaks[merged_sets[i][0]][all_peaks_max_index[merged_sets[i][0]]][1] - y_mean_a)
-
-            #     dx_b = np.abs(all_peaks[merged_sets[i][0]][all_peaks_max_index[merged_sets[i][0]]][0] - x_mean_b)
-            #     dy_b = np.abs(all_peaks[merged_sets[i][0]][all_peaks_max_index[merged_sets[i][0]]][1] - y_mean_b)
-                
-            #     da = dx_a*dx_a + dy_a*dy_a
-            #     db = dx_b*dx_b + dy_b*dy_b
-
-            #     if (da < db):
-            #         detected_contour_depth_values[temp_detected.index(merged_sets[i][0])] = [x for x in clusters[0][:][2]]
-            #         detected_contour_depth_values[temp_detected.index(merged_sets[i][1])] = [x for x in clusters[1][:][2]]
-            #     else:
-            #         detected_contour_depth_values[temp_detected.index(merged_sets[i][0])] = [x for x in clusters[1][:][2]]
-            #         detected_contour_depth_values[temp_detected.index(merged_sets[i][1])] = [x for x in clusters[2][:][2]]
-            
-                                
-
             temp_detected.remove(merged_sets[i][0])
             temp_detected.remove(merged_sets[i][1])
 
-
+    # spatial mapping from depthmap to 3D world using the intrinsic and extrinsic camera matrices
+    # the extracted 3D points are stored in text files
     detected_index = 0
     for i in range(num_of_heatmaps - 1):
         if (i in detected_ids):           
@@ -463,52 +445,29 @@ def process (input_image, params, model_params):
             if "D4" in input_image:
                 vec3 = [KRT4_x[all_peaks[i][all_peaks_max_index[i]][0]][int(all_peaks[i][all_peaks_max_index[i]][1])]*depth, KRT4_y[all_peaks[i][all_peaks_max_index[i]][0]][int(all_peaks[i][all_peaks_max_index[i]][1])]*depth, depth, 1000.0]
                 vec3 = np.true_divide(vec3, 1000.0)
-                
-                # trans = np.transpose(Ext4)
-                # final_vec3 = np.matmul(trans, vec3, out=None)
-
                 final_vec3 = np.matmul(Ext4, vec3, out=None)
 
                 file_3d.write(reflectors[i+1] + ' { ' + str(final_vec3[0]) + ' ' + str(final_vec3[1]) + ' ' + str(final_vec3[2]) + ' ' + str(final_vec3[0]) + ' ' + str(final_vec3[1]) + ' ' + str(final_vec3[2]) + ' }\n')
             elif "D6" in input_image:
                 vec3 = [KRT6_x[all_peaks[i][all_peaks_max_index[i]][0]][int(all_peaks[i][all_peaks_max_index[i]][1])]*depth, KRT6_y[all_peaks[i][all_peaks_max_index[i]][0]][int(all_peaks[i][all_peaks_max_index[i]][1])]*depth, depth, 1000.0]
                 vec3 = np.true_divide(vec3, 1000.0)
-                
-                # trans = np.transpose(Ext6)
-                # final_vec3 = np.matmul(trans, vec3, out=None)
-
                 final_vec3 = np.matmul(Ext6, vec3, out=None)
                 
                 file_3d.write(reflectors[i+1] + ' { ' + str(final_vec3[0]) + ' ' + str(final_vec3[1]) + ' ' + str(final_vec3[2]) + ' ' + str(final_vec3[0]) + ' ' + str(final_vec3[1]) + ' ' + str(final_vec3[2]) + ' }\n')
             elif "D8" in input_image:
                 vec3 = [KRT8_x[all_peaks[i][all_peaks_max_index[i]][0]][int(all_peaks[i][all_peaks_max_index[i]][1])]*depth, KRT8_y[all_peaks[i][all_peaks_max_index[i]][0]][int(all_peaks[i][all_peaks_max_index[i]][1])]*depth, depth, 1000.0]
                 vec3 = np.true_divide(vec3, 1000.0)
-                # trans = np.transpose(Ext8)
-                # final_vec3 = np.matmul(trans, vec3, out=None)
-
                 final_vec3 = np.matmul(Ext8, vec3, out=None)
 
                 file_3d.write(reflectors[i+1] + ' { ' + str(final_vec3[0]) + ' ' + str(final_vec3[1]) + ' ' + str(final_vec3[2]) + ' ' + str(final_vec3[0]) + ' ' + str(final_vec3[1]) + ' ' + str(final_vec3[2]) + ' }\n')
 
-            # cv2.drawContours(im2, contours, -1, (255,255,255), 1)
-
-            # cv2.imwrite(input_image.replace(".png", "_new.png"), im2)
-            # ret = cv2.floodFill(canvas, None, all_peaks[i][all_peaks_max_index[i]][0:2], colors[i])
-            # cv2.imshow(str(1), im2)
-            # cv2.waitKey(0)
-
             detected_index += 1
-            # print("done")
         else:
             file_3d.write(reflectors[i+1] + ' {  }\n')
-            # cv2.imshow(str(1), im2)
-            # cv2.waitKey(0)
     else:
         file_3d.write(reflectors[i+1] + ' {  }\n')
 
-            # cv2.putText(canvas, str(i+1), all_peaks[i][all_peaks_max_index[i]][0:2], cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), thickness=2, lineType=cv2.LINE_AA) 
-        # for j in range(len(all_peaks[i])):
-        #     cv2.circle(canvas, all_peaks[i][j][0:2], 4, colors[i], thickness=-1)
+      
     file_3d.write('NOSE {  }\n')
     stickwidth = 4
 
@@ -537,9 +496,9 @@ def process (input_image, params, model_params):
 
     
     #### PAPER FIGURE
+    # at this stage, the estimates are overlayed on the depth images - the depth images occur by grayscaling the colorized images *NOT the raw depth
     canvas = cv2.cvtColor(canvas, cv2.COLOR_BGR2GRAY)
     canvas = cv2.cvtColor(canvas, cv2.COLOR_GRAY2BGR)
-    ####
 
     for i in range(len(limbSeq)):
         if len(all_peaks[limbSeq[i][0]-1]) > 0 and len(all_peaks[limbSeq[i][1]-1]) > 0:
@@ -560,11 +519,8 @@ def process (input_image, params, model_params):
         if len(all_peaks[i]) > 0:           
             cv2.putText(canvas, str(i+1), all_peaks[i][all_peaks_max_index[i]][0:2], cv2.FONT_HERSHEY_SIMPLEX, 1.0, colors[i], thickness=2, lineType=cv2.LINE_AA) 
 
-    print(input_image)
-    cv2.imwrite(input_image.replace(".png", "_processed.jpg"), canvas)
+    cv2.imwrite(input_image_CD.replace(".png", "_processed.jpg"), canvas)
     return canvas
-
-
 
 def read_pgm(filename, byteorder='>'):
     """Return image data from a raw PGM file as numpy array.
@@ -591,11 +547,7 @@ def read_pgm(filename, byteorder='>'):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--dir', type=str, default='sample_images/exp_seq00/', help='input dir')
-    # parser.add_argument('--dir', type=str, default='sample_images/exp_seq_18_9_43_10317-10915/', help='input dir')    
-    parser.add_argument('--dir', type=str, default='samples/', help='input dir')    
-    
-    # parser.add_argument('--dir', type=str, default='sample_images/figure/', help='input dir')    
+    parser.add_argument('--dir', type=str, default='samples/', help='input dir')      
     parser.add_argument('--image', type=str, default='samples/test.png', help='input image')
     parser.add_argument('--output', type=str, default='result.png', help='output image')
     parser.add_argument('--model', type=str, default='model/keras/deepmocap_model.h5', help='path to the weights file')
@@ -656,9 +608,6 @@ if __name__ == '__main__':
     Ext6 = np.zeros((4, 4), dtype=float)
     Ext8 = np.zeros((4, 4), dtype=float)
     tempExt = np.zeros((4, 4), dtype=float)
-  
-
-
 
     file4extrinsics = open(imageDir + "D4.extrinsics", 'r')
     file6extrinsics = open(imageDir + "D6.extrinsics", 'r')
@@ -692,12 +641,9 @@ if __name__ == '__main__':
 
     tempExt = np.zeros((4, 4), dtype=float)
 
-    print("3: " + str(Ext4[0][3]))
-
     for i in range(0, len(lines_ext6)):
         textValues = re.split(' |\r', lines_ext6[i])
         for j in range(0, len(textValues)-1):
-            # xyz = re.split(';| |\n|\t|\r', textValues[j])
             tempExt[i][j] = float(textValues[j])
   
     Ext6[:][0] = tempExt[:][0]
@@ -714,7 +660,6 @@ if __name__ == '__main__':
     for i in range(0, len(lines_ext8)):
         textValues = re.split(' |\r', lines_ext8[i])
         for j in range(0, len(textValues)-1):
-            # xyz = re.split(';| |\n|\t|\r', textValues[j])
             tempExt[i][j] = float(textValues[j])
   
     Ext8[:][0] = tempExt[:][0]
@@ -726,9 +671,6 @@ if __name__ == '__main__':
     Ext8[2][3] = -tempExt[3][1] / 1000.0
 
     Ext8[3][3] = 1
-
-
-
 
     # 
     model = get_testing_model()
@@ -744,23 +686,19 @@ if __name__ == '__main__':
         os.chdir(imageDir)
         imageFiles = glob.glob("*mc_blob.png")
         frameIndex = 0
-        for inputImage in imageFiles:
-            file_3d = open(inputImage.replace(".png", "_reflectors.txt"), 'w')
-            
+        for input_image_CD in imageFiles:
+            file_3d = open(input_image_CD.replace(".png", "_reflectors.txt"), 'w')
+            input_image_OF = input_image_CD.replace("mc_blob.png", "flow.png")
             # generate image with body parts
-            canvas = process(inputImage, params, model_params)
-            # cv2.destroyAllWindows()
-         
-            # cv2.imwrite(inputImage.replace(".png", '_out.png'), canvas)
-            # cv2.imshow("MCuDaRT", canvas)
+            canvas = process(input_image_CD, input_image_OF, params, model_params)
             frameIndex = frameIndex + 1
-            # cv2.waitKey(0)
 
         file_3d.close()
     else:
         tic = time.time()
         # generate image with body parts
-        canvas = process(input_image, params, model_params)
+        input_image_OF = input_image.replace("mc_blob.png", "flow.png")
+        canvas = process(input_image, input_image_OF, params, model_params)
 
         toc = time.time()
         print ('processing time is %.5f' % (toc - tic))
