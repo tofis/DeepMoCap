@@ -1,1 +1,1 @@
-To get the **DeepMoCap** FCN model, please contact the owner of the repository via github or email (tofis@iti.gr).
+Download the model from this [url](http://deepmocap.com/model/deepmocap_model.h5).
