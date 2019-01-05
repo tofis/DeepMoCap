@@ -24,7 +24,7 @@ This project is licensed under the terms of the [license](LICENSE).
 ## Testing
 For testing the FCN model, please visit ["testing/"](/testing/) enabling the 3D optical data extraction from colorized depth and 3D optical flow input. The data should be appropriately formed and the DeepMoCap FCN model should be placed to ["testing/model/keras"](/testing/model/keras).
 
-The proposed FCN is evaluated on the DMC2.5D dataset measuring mean Average Precision (mAP) for the entire set, based on Percentage of Correct Keypoints (PCK) thresholds. The proposed method outperforms the competitive methods as shown in the table below.
+The proposed FCN is evaluated on the DMC2.5D dataset measuring mean Average Precision (mAP) for the entire set, based on Percentage of Correct Keypoints (PCK) thresholds (a = 0.05). The proposed method outperforms the competitive methods as shown in the table below.
 
 | Method  | Total | Total (without end-reflectors) |
 | :---: | :---: | :---: |
