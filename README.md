@@ -83,15 +83,19 @@ The annotation tool for the spatio-temporally alignment of the 3D data will be p
 To get the DMC3D dataset, please contact the owner of the repository via github or email (tofis@iti.gr).
 
 ## Citation
+This paper has been published in MDPI Sensors, Depth Sensors and 3D Vision Special Issue [[PDF]](https://www.mdpi.com/1424-8220/19/2/282)
 
-The paper is currently under review.
+Please cite the paper in your publications if it helps your research:    
 
-<!-- Please cite the paper in your publications if it helps your research:    
-    
-    @inproceedings{deepmocap2018chatzitofis,
-      author = {Anargyros Chatzitofis and Dimitrios Zarpalas and Stefanos Kollias and Petros Daras},
-      booktitle = {Sensors},
-      title = {DeepMoCap: Optical Motion Capture leveraging multiple Depth Sensors, Retro-reflectors and Fully Convolutional Neural Networks},
-      year = {2018}
-      } -->
-	  
+<pre><code>
+@article{chatzitofis2019deepmocap,
+  title={DeepMoCap: Deep Optical Motion Capture Using Multiple Depth Sensors and Retro-Reflectors},
+  author={Chatzitofis, Anargyros and Zarpalas, Dimitrios and Kollias, Stefanos and Daras, Petros},
+  journal={Sensors},
+  volume={19},
+  number={2},
+  pages={282},
+  year={2019},
+  publisher={Multidisciplinary Digital Publishing Institute}
+}
+</pre></code>	  
