@@ -38,7 +38,7 @@ The proposed FCN is evaluated on the DMC2.5D dataset measuring mean Average Prec
 
 
 ## Supplementaty material (video)
-[![Teaser?](http://www.deepmocap.com/img/video_splash.png)](https://www.dropbox.com/s/y0iyv2hg5eufl4y/DeepMoCap_vid.mp4?dl=0)
+[![Teaser?](http://www.deepmocap.com/img/video_splash.png)](https://www.youtube.com/watch?v=OvCJ-WWyLcM)
 
 ## Datasets
 Two datasets have been created and made publicly available for evaluation purposes; one comprising multi-view depth and 3D optical flow annotated images (DMC2.5D), and a second, consisting of spatio-temporally aligned multi-view depth images along with skeleton, inertial and ground truth MoCap data (DMC3D).
